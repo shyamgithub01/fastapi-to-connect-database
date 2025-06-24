@@ -7,6 +7,7 @@ from fastapi.security import OAuth2PasswordRequestForm
 from . import auth
 from fastapi import HTTPException
 from .crud import delete_user_by_name
+from .auth import get_current_user
 
 app = FastAPI()
 
@@ -43,3 +44,11 @@ def read_users(db: Session = Depends(get_db)):
 @app.post("/users" , response_model = schemas.UserResponse )
 def create_user(user: schemas.UserCreate , db:Session = Depends(get_db)):
     return crud.create_user(db=db,user=user)         
+
+@app.get("/me")
+def read_current_user(current_user: models.User = Depends(get_current_user)):
+    return {
+        "id": current_user.id,
+        "name": current_user.name,
+        "email": current_user.email
+    }
