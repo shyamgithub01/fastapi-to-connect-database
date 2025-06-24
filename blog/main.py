@@ -2,6 +2,11 @@ from fastapi import FastAPI , Depends
 from sqlalchemy.orm import Session
 from . import models , schemas , crud
 from .database import engine , SessionLocal
+from fastapi import HTTPException
+from fastapi.security import OAuth2PasswordRequestForm
+from . import auth
+from fastapi import HTTPException
+from .crud import delete_user_by_name
 
 app = FastAPI()
 
@@ -13,6 +18,23 @@ def get_db():
         yield db
     finally:
         db.close
+@app.delete("/users/{name}")
+def delete_user(name: str, db: Session = Depends(get_db)):
+    deleted = delete_user_by_name(db, name)
+    if not deleted:
+        raise HTTPException(status_code=404, detail="User not found")
+    return {"message": f"User '{name}' deleted successfully"}        
+
+@app.post("/login")
+def login(form_data: OAuth2PasswordRequestForm = Depends(),db: Session = Depends(get_db)):
+
+    user = auth.authenticate_user(db, form_data.username, form_data.password)
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid credentials")
+
+    token = auth.create_access_token(data={"sub": user.email})
+    return {"access_token": token, "token_type": "bearer"}
+
 
 @app.get("/users", response_model=list[schemas.UserResponse])
 def read_users(db: Session = Depends(get_db)):

@@ -4,7 +4,7 @@ from sqlalchemy.ext.declarative import declarative_base # sab ORM models ka base
 from sqlalchemy.orm import sessionmaker # database ke sath session handle karta hai
 
 
-SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root:<password>@localhost:3306/fastapi_db"
+SQLALCHEMY_DATABASE_URL = "mysql+pymysql://root:Shyam%40123s@localhost:3306/friends_db"
 
 engine = create_engine(SQLALCHEMY_DATABASE_URL) # yeh line actual MySQL connection banata hian
 SessionLocal = sessionmaker(bind=engine, autoflush=False, autocommit=False) #  session creation with local db
